@@ -61,44 +61,63 @@ To make this chatbot **completely offline**, including embeddings:
 ## 📂 Folder Structure
 
 ```
+
 📁 data/                  ← Drop your PDFs here
-├── Universal_Human_Rights.pdf
-├── Constitution_of_India.pdf
-...
+├── Universal\_Human\_Rights.pdf
+├── Constitution\_of\_India.pdf
 
 🧠 Bot.py                ← Main CLI chatbot script
 📓 Bot.ipynb             ← Jupyter Notebook with sample output
-📁 faiss_index/          ← Auto-generated vector DB
+📁 vectorstore/db\_faiss/ ← FAISS-generated local vector DB
 🔧 requirements.txt
+🔧 setup.ps1             ← PowerShell script for setup (Windows)
 📄 README.md
-```
+
+````
+
+---
+
+## 📦 Clone the Repository
+
+```bash
+git clone https://github.com/AdityaBhatt3010/Universal-Offline-AI-Chatbot.git
+cd Universal-Offline-AI-Chatbot
+````
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 1. Install Dependencies
+### 1. Use the One-Click PowerShell Script (Windows)
+
+```powershell
+.\setup.ps1
+```
+
+This installs Python dependencies, sets up the environment, and pulls the Ollama model.
+
+### OR follow the manual steps:
+
+#### 1. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Pull the Ollama Model
+#### 2. Pull the Ollama Model
 
 ```bash
 ollama pull mistral:instruct
 ```
 
-> Make sure `ollama` is installed and running in the background.
+Make sure `ollama` is installed and running.
 
-### 3. Set Your HF Token
+#### 3. Set Your HF Token (first-time only)
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=your_token_here  # Linux/macOS
-set HUGGINGFACEHUB_API_TOKEN=your_token_here     # Windows CMD
+export HUGGINGFACEHUB_API_TOKEN=your_token_here      # macOS/Linux
+set HUGGINGFACEHUB_API_TOKEN=your_token_here         # Windows CMD
 ```
-
-> You only need this once. After that, the model is cached locally.
 
 ---
 
@@ -108,7 +127,7 @@ set HUGGINGFACEHUB_API_TOKEN=your_token_here     # Windows CMD
 python Bot.py
 ```
 
-or try the notebook:
+or try the notebook version:
 
 ```bash
 jupyter notebook Bot.ipynb
@@ -139,14 +158,14 @@ mv your_pdfs/*.pdf data/
 python Bot.py
 ```
 
-The new bot will be trained on your content — no need to retrain embeddings manually; it's handled automatically.
+The bot will automatically embed and index your custom data using FAISS.
 
 ---
 
 ## 🧑‍💻 Author
 
-**Aditya Bhatt**
-Cybersecurity Specialist • AI + VAPT • OSS Contributor
-[GitHub](https://github.com/AdityaBhatt3010) • [Medium](https://medium.com/@adityabhatt3010)
+**Aditya Bhatt** <br/>
+Cybersecurity Specialist • AI + VAPT • OSS Contributor <br/>
+[GitHub](https://github.com/AdityaBhatt3010) • [Medium](https://medium.com/@adityabhatt3010) <br/>
 
 ---
