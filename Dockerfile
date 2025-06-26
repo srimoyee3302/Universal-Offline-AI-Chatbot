@@ -15,4 +15,4 @@ RUN pip install -r requirements.txt
 ENV HF_TOKEN="changeme"
 
 # Run your chatbot
-CMD ["python", "ChatBot.py"]
+CMD ["python", "Bot.py"]
