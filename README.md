@@ -145,6 +145,37 @@ jupyter notebook Bot.ipynb
 
 ---
 
+## 🐋 Docker Support
+
+You can now run the Universal-AI-ChatBot inside a Docker container!
+
+### 🛠 Prerequisites
+
+* Make sure Docker is installed and running.
+* Verify with:
+
+  ```bash
+  docker --version
+  ```
+
+### 🚀 Build and Run
+
+```bash
+# Build the Docker image
+docker build -t ai-chatbot .
+
+# Run the Docker container with environment variables
+docker run --env-file .env ai-chatbot
+```
+
+The `.env` file must contain your Hugging Face token as:
+
+```env
+HF_TOKEN=your-token-here
+```
+
+---
+
 ## 🛠️ Customize the Knowledge Base
 
 To use your own data:

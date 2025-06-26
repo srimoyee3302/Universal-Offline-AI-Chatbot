@@ -25,5 +25,14 @@ $env:HUGGINGFACEHUB_API_TOKEN = $hfToken
 # Persist the token for future sessions (user scope)
 [Environment]::SetEnvironmentVariable("HUGGINGFACEHUB_API_TOKEN", $hfToken, "User")
 
-Write-Host "Setup Complete. Launching Bot..."
-python Bot.py
+# Step 4: Check Docker installation
+Write-Host "`n Checking Docker installation..." -ForegroundColor Cyan
+docker --version
+
+# Step 5: Build Docker image
+Write-Host "`n Building Docker image: ai-chatbot" -ForegroundColor Cyan
+docker build -t ai-chatbot .
+
+# Step 6: Run Docker container with environment file
+Write-Host "`n Running Docker container using .env" -ForegroundColor Cyan
+docker run --env-file .env ai-chatbot
