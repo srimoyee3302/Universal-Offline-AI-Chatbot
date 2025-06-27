@@ -228,8 +228,8 @@ Defined in: `.github/workflows/python.yml`
 
 ## 🧑‍💻 Author
 
-**Aditya Bhatt**
-Cybersecurity Specialist | VAPT Expert | OSS Contributor
-[GitHub](https://github.com/AdityaBhatt3010) | [Medium](https://medium.com/@adityabhatt3010)
+**Aditya Bhatt** <br/>
+Cybersecurity Specialist | VAPT Expert | OSS Contributor <br/>
+[GitHub](https://github.com/AdityaBhatt3010) | [Medium](https://medium.com/@adityabhatt3010) <br/>
 
 ---
