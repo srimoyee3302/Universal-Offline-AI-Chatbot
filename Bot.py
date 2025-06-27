@@ -1,5 +1,4 @@
 # === Requirements ===
-# pip install -q langchain langchain-community langchain-core langchainhub sentence-transformers faiss-cpu pypdf python-dotenv pyfiglet termcolor
 
 import os
 from dotenv import load_dotenv, find_dotenv

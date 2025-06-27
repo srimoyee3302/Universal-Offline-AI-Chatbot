@@ -1,18 +1,30 @@
-# Use a minimal official Python image
+# Base image with Python
 FROM python:3.11-slim
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy project files into the container
+# Install OS dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirement files
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
 COPY . .
 
-# Upgrade pip and install dependencies
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Expose Streamlit default port
+EXPOSE 8501
 
-# (Optional) Set a dummy env variable for development clarity (will be overridden by --env-file)
-ENV HF_TOKEN="changeme"
+# Set environment variables (optional)
+ENV PYTHONUNBUFFERED=1
 
-# Run your chatbot
-CMD ["python", "Bot.py"]
+# Run the Streamlit app
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.enableCORS=false"]

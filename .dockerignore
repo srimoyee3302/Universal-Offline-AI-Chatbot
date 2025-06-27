@@ -1,6 +1,15 @@
-.git
+# Don't copy these into the container
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.db
+*.log
 .env
-*.ipynb
-DockerFile
+venv/
+.idea/
+.vscode/
+*.egg-info/
+*.ipynb_checkpoints
+data/
+vectorstore/

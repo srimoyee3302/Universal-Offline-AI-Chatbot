@@ -1,202 +1,215 @@
 # 🌐 Universal Offline AI Chatbot
 
-> 🧠 Build your own domain-specific chatbot — offline-capable, flexible, and privacy-aware.
+> Build your own domain-specific chatbot — offline, modular, and blazing fast.
 
-**Universal Offline AI Chatbot** is a lightweight, extensible local assistant that answers questions based on your **own PDFs** — legal, technical, scientific, educational, or enterprise documents. It uses a fast, locally hosted LLM via **Ollama**, and processes your files using **semantic search** to provide meaningful answers.
+The **Universal Offline AI Chatbot** is a privacy-respecting, offline-ready assistant that can chat over **any set of PDFs**. It’s ideal for legal, cybersecurity, academic, enterprise, or technical domains.
 
-Although the example setup features a **LawyerBot** trained on human rights and constitutional documents, you can easily replace the PDFs to create your **own chatbot in any domain** — all without relying on cloud-based inference.
+It uses a **locally hosted LLM** (`mistral:instruct` via [Ollama](https://ollama.com)) and **semantic search** powered by HuggingFace embeddings and FAISS. You get **fast, accurate responses**, without sending anything to the cloud.
 
 ---
 
 ## ✨ Highlights
 
-* 🌍 **Universal Domain Support** — just drop in any PDFs
-* 🔐 **Offline-Capable** — inference is local via Ollama
-* 🧠 **Semantic Search** with HuggingFace embeddings
-* 📄 **PDF-first** design — no need for manual data entry
-* 🧪 Comes preconfigured with a working **LawyerBot**
+* 🔐 Fully **offline-capable** with local LLM (via Ollama)
+* 📄 Works out-of-the-box with your **PDFs**
+* 🧠 **Semantic vector search** using `all-MiniLM-L6-v2`
+* ⚡️ Fast and responsive using **FAISS** backend
+* 🧩 Modular, extendable architecture (streamlit frontend + CLI)
+* 🐳 Docker-ready for deployment
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer         | Stack                                       |
-| ------------- | ------------------------------------------- |
-| LLM           | `mistral:instruct` (served via Ollama)      |
-| Embeddings    | `all-MiniLM-L6-v2` via SentenceTransformers |
-| Vector Store  | FAISS (fast, local)                         |
-| RAG Framework | LangChain                                   |
-| Language      | Python 3.11+                                |
+| Layer        | Stack                                       |
+| ------------ | ------------------------------------------- |
+| LLM          | `mistral:instruct` via Ollama               |
+| Embeddings   | `all-MiniLM-L6-v2` via SentenceTransformers |
+| Vector Store | FAISS (in-memory + disk)                    |
+| Framework    | LangChain (v0.2+)                           |
+| Language     | Python 3.11+                                |
+| UI           | Streamlit                                   |
+| Container    | Docker                                      |
 
-> **Note:** This setup uses HuggingFace’s `sentence-transformers/all-MiniLM-L6-v2`, which still requires a HuggingFace token to fetch the model the first time. After that, it's cached and used locally.
-
----
-
-## 🤔 Can it be 100% Offline?
-
-Yes — but with tradeoffs.
-
-To make this chatbot **completely offline**, including embeddings:
-
-* You’d need to **host your own embedding model** (like `MiniLM`, `Instructor-XL`, etc.) using ONNX or quantized PyTorch
-* This requires significant **RAM/VRAM**, slow initial load times, and custom wrappers
-* You’ll lose the simplicity and efficiency provided by `sentence-transformers`
-
-**This repo uses the HuggingFace version to balance practicality and performance.**
+> ⚠️ HuggingFace Token is required to fetch the embedding model once. It's cached locally afterward.
 
 ---
 
 ## 💡 Use Cases
 
-| Use Case                 | Just Add These PDFs             |
-| ------------------------ | ------------------------------- |
-| 👨‍⚖️ LawyerBot          | Legal/Constitutional Docs       |
-| 🧑‍🏫 EdTechBot          | Academic Notes, Books           |
-| 🛡️ CyberSecBot          | SOC2, GDPR, ISO27001 PDFs       |
-| 🧬 ResearchBot           | Scientific Papers, Whitepapers  |
-| 🧑‍💼 HRBot / CompanyBot | Onboarding Docs, Policies, SOPs |
+| Chatbot Type        | Add These PDFs                     |
+| ------------------- | ---------------------------------- |
+| 👨‍⚖️ LawyerBot     | Legal, Constitution, HR documents  |
+| 🧬 ResearchBot      | Whitepapers, scientific papers     |
+| 🛡️ CyberSecBot     | SOC2, GDPR, ISO27001, NIST docs    |
+| 📚 EdTechBot        | Notes, textbooks, question banks   |
+| 🧑‍💼 HR/CompanyBot | SOPs, onboarding docs, HR policies |
 
 ---
 
-## 📂 Folder Structure
+## 📁 Project Structure
 
 ```
-
-📁 data/                  ← Drop your PDFs here
-├── Universal\_Human\_Rights.pdf
-├── Constitution\_of\_India.pdf
-
-🧠 Bot.py                ← Main CLI chatbot script
-📓 Bot.ipynb             ← Jupyter Notebook with sample output
-📁 vectorstore/db\_faiss/ ← FAISS-generated local vector DB
-🔧 requirements.txt
-🔧 setup.ps1             ← PowerShell script for setup (Windows)
-📄 README.md
-
-````
+Universal-Offline-AI-Chatbot/
+│
+├── data/                   # Place your PDF documents here
+│   └── Try.pdf
+│
+├── Screenshots/           # UI snapshots
+│   ├── Loading_Screen.png
+│   └── Running_the_Model.png
+│
+├── src/                   # Modular source code
+│   ├── chunker.py
+│   ├── config.py
+│   ├── embedding.py
+│   ├── loader.py
+│   ├── model_loader.py
+│   ├── prompts.py
+│   ├── qa_chain.py
+│   ├── utils.py
+│   └── vectorstore.py
+│
+├── vectorstore/           # Local FAISS vector index
+│   └── db_faiss/
+│
+├── Bot.py                 # CLI script
+├── Bot.ipynb              # Jupyter notebook version
+├── main.py                # Entry-point (optional)
+├── streamlit_app.py       # Frontend UI (Streamlit)
+├── requirements.txt       # Python dependencies
+├── setup.ps1              # PowerShell setup script
+├── Dockerfile             # Docker image definition
+├── .dockerignore
+├── .env                   # Contains HF_TOKEN
+├── README.md
+└── LICENSE
+```
 
 ---
 
-## 📦 Clone the Repository
+## 🧰 Setup Instructions
 
-```bash
-git clone https://github.com/AdityaBhatt3010/Universal-Offline-AI-Chatbot.git
-cd Universal-Offline-AI-Chatbot
-````
-
----
-
-## ⚙️ Setup Instructions
-
-### 1. Use the One-Click PowerShell Script (Windows)
+### 🖥️ One-Click Setup (Windows Only)
 
 ```powershell
 .\setup.ps1
 ```
 
-This installs Python dependencies, sets up the environment, and pulls the Ollama model.
+This will:
 
-### OR follow the manual steps:
+* Create virtual env
+* Install dependencies
+* Pull Mistral via Ollama
+* Ask for Hugging Face token
+* Build Docker image
 
-#### 1. Install Python Dependencies
+---
+
+### 🛠 Manual Setup
+
+1. **Install Python Requirements**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-#### 2. Pull the Ollama Model
+2. **Install & Pull Ollama Model**
 
 ```bash
 ollama pull mistral:instruct
 ```
 
-Make sure `ollama` is installed and running.
-
-#### 3. Set Your HF Token (first-time only)
+3. **Set HuggingFace Token (First Time Only)**
 
 ```bash
-export HUGGINGFACEHUB_API_TOKEN=your_token_here      # macOS/Linux
-set HUGGINGFACEHUB_API_TOKEN=your_token_here         # Windows CMD
+export HUGGINGFACEHUB_API_TOKEN=your_token      # macOS/Linux
+set HUGGINGFACEHUB_API_TOKEN=your_token         # Windows CMD
 ```
 
----
-
-## 🚀 Running the Chatbot
+4. **Run the CLI Bot**
 
 ```bash
 python Bot.py
 ```
 
-or try the notebook version:
+---
+
+## 🌐 Run with Streamlit Frontend
 
 ```bash
-jupyter notebook Bot.ipynb
+streamlit run streamlit_app.py
 ```
+
+### 📸 Streamlit Preview
+
+#### ⏳ Loading Screen
+![Loading Screen](./Screenshots/Loading_Screen.png)
+
+#### 🤖 Chat in Action
+![Running the Model](./Screenshots/Running_the_Model.png)
+
+#### Features:
+
+* Clean UI
+* Type queries directly
+* Works with your uploaded PDFs
+* Handles PDF loading, chunking, indexing, and querying under the hood
 
 ---
 
-## 💬 Sample Interaction
+## 🐳 Docker Support
 
-```
-🧠 You: What is Article 19 about?
+### Prerequisites
 
-🤖 Bot: Article 19 states that everyone has the right to freedom of opinion and expression...
-```
+* Docker installed & running
 
----
-
-## 🐋 Docker Support
-
-You can now run the Universal-AI-ChatBot inside a Docker container!
-
-### 🛠 Prerequisites
-
-* Make sure Docker is installed and running.
-* Verify with:
-
-  ```bash
-  docker --version
-  ```
-
-### 🚀 Build and Run
+### Build & Run
 
 ```bash
-# Build the Docker image
+# Build the image
 docker build -t ai-chatbot .
 
-# Run the Docker container with environment variables
+# Run the container (ensure .env has HF_TOKEN)
 docker run --env-file .env ai-chatbot
 ```
 
-The `.env` file must contain your Hugging Face token as:
+Example `.env`:
 
-```env
-HF_TOKEN=your-token-here
+```
+HF_TOKEN=your_huggingface_token_here
 ```
 
 ---
 
-## 🛠️ Customize the Knowledge Base
-
-To use your own data:
+## 🔄 Using Your Own PDFs
 
 ```bash
-# Replace files in data/
-rm data/*
-mv your_pdfs/*.pdf data/
+# Replace default file(s)
+mv your_files/*.pdf ./data/
 
-# Re-run the bot
+# Re-run the bot or restart Streamlit
 python Bot.py
 ```
 
-The bot will automatically embed and index your custom data using FAISS.
+Automatically re-indexes your new documents using FAISS.
+
+---
+
+## 🧪 Sample Interaction
+
+```
+🧠 You: What does Article 21 state?
+
+🤖 Bot: Article 21 of the Indian Constitution guarantees the protection of life and personal liberty...
+```
 
 ---
 
 ## 🧑‍💻 Author
 
 **Aditya Bhatt** <br/>
-Cybersecurity Specialist • AI + VAPT • OSS Contributor <br/>
-[GitHub](https://github.com/AdityaBhatt3010) • [Medium](https://medium.com/@adityabhatt3010) <br/>
+Cybersecurity Specialist | VAPT Expert | OSS Contributor<br/>
+[GitHub](https://github.com/AdityaBhatt3010) | [Medium](https://medium.com/@adityabhatt3010)<br/>
 
 ---
