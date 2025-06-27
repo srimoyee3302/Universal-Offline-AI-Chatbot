@@ -6,7 +6,6 @@
 ![LangChain](https://img.shields.io/badge/LangChain-%E2%9C%94-green)
 ![Docker](https://img.shields.io/badge/Docker-ready-blue)
 ![Offline](https://img.shields.io/badge/Offline-LLM-orange)
-[![CI](https://github.com/AdityaBhatt3010/Universal-Offline-AI-Chatbot/actions/workflows/python.yml/badge.svg)](https://github.com/AdityaBhatt3010/Universal-Offline-AI-Chatbot/actions/workflows/python.yml)
 
 The **Universal Offline AI Chatbot** is a privacy-respecting, offline-ready assistant that can chat over **any set of PDFs**. It’s ideal for legal, cybersecurity, academic, enterprise, or technical domains.
 
@@ -88,9 +87,6 @@ Universal-Offline-AI-Chatbot/
 │
 ├── vectorstore/           # Local FAISS vector index
 │   └── db_faiss/
-│
-├── .github/workflows/     # GitHub Actions workflows
-│   └── python.yml         # CI for linting & dependencies
 │
 ├── Bot.py                 # CLI script
 ├── Bot.ipynb              # Jupyter notebook version
@@ -211,18 +207,6 @@ Automatically re-indexes your new documents using FAISS.
 
 🤖 Bot: Article 21 of the Indian Constitution guarantees the protection of life and personal liberty...
 ```
-
----
-
-## 🧪 CI/CD with GitHub Actions
-
-Every push or pull request triggers automated checks:
-
-* ✅ Python 3.11 setup
-* ✅ Dependency installation
-* ✅ Code linting via `flake8`
-
-Defined in: `.github/workflows/python.yml`
 
 ---
 
