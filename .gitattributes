@@ -1,5 +1,13 @@
+# Force correct language detection for ignored/low-content files
 *.yml linguist-language=YAML
 *.yaml linguist-language=YAML
-*.ps1 linguist-language=PowerShell
-*.py linguist-language=Python
 *.ipynb linguist-language=Jupyter Notebook
+*.ps1 linguist-language=PowerShell
+
+# Mark screenshots/docs as non-source content
+Screenshots/* linguist-documentation
+README.md linguist-documentation
+*.png linguist-documentation
+
+# Exclude compiled Python
+__pycache__/* linguist-generated
