@@ -2,7 +2,11 @@
 
 > Build your own domain-specific chatbot — offline, modular, and blazing fast.
 
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/release/python-3110/) ![LangChain](https://img.shields.io/badge/LangChain-%E2%9C%94-green) ![Docker](https://img.shields.io/badge/Docker-ready-blue) ![Offline](https://img.shields.io/badge/Offline-LLM-orange)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+![LangChain](https://img.shields.io/badge/LangChain-%E2%9C%94-green)
+![Docker](https://img.shields.io/badge/Docker-ready-blue)
+![Offline](https://img.shields.io/badge/Offline-LLM-orange)
+[![CI](https://github.com/AdityaBhatt3010/Universal-Offline-AI-Chatbot/actions/workflows/python.yml/badge.svg)](https://github.com/AdityaBhatt3010/Universal-Offline-AI-Chatbot/actions/workflows/python.yml)
 
 The **Universal Offline AI Chatbot** is a privacy-respecting, offline-ready assistant that can chat over **any set of PDFs**. It’s ideal for legal, cybersecurity, academic, enterprise, or technical domains.
 
@@ -19,6 +23,7 @@ It uses a **locally hosted LLM** (`mistral:instruct` via [Ollama](https://ollama
 * 🧩 Modular, extendable architecture (Streamlit frontend + CLI)
 * 🐳 Docker-ready for deployment
 * 📸 UI Preview with screenshots
+* ✅ Built-in CI/CD check via GitHub Actions
 * 🎯 Fully reproducible setup via PowerShell script or Docker
 
 ---
@@ -34,8 +39,15 @@ It uses a **locally hosted LLM** (`mistral:instruct` via [Ollama](https://ollama
 | Language     | Python 3.11+                                |
 | UI           | Streamlit                                   |
 | Container    | Docker                                      |
+| CI/CD        | GitHub Actions (`.github/workflows/python.yml`) |
 
 > ⚠️ HuggingFace Token is required to fetch the embedding model once. It's cached locally afterward.
+
+Example `.env`:
+
+```env
+HF_TOKEN=your_huggingface_token_here
+````
 
 ---
 
@@ -76,6 +88,9 @@ Universal-Offline-AI-Chatbot/
 │
 ├── vectorstore/           # Local FAISS vector index
 │   └── db_faiss/
+│
+├── .github/workflows/     # GitHub Actions workflows
+│   └── python.yml         # CI for linting & dependencies
 │
 ├── Bot.py                 # CLI script
 ├── Bot.ipynb              # Jupyter notebook version
@@ -148,9 +163,11 @@ streamlit run streamlit_app.py
 ### 📸 Streamlit Preview
 
 #### ⏳ Loading Screen
+
 ![Loading Screen](./Screenshots/Loading_Screen.png)
 
 #### 🤖 Chat in Action
+
 ![Running the Model](./Screenshots/Running_the_Model.png)
 
 ---
@@ -169,12 +186,6 @@ docker build -t ai-chatbot .
 
 # Run the container (ensure .env has HF_TOKEN)
 docker run --env-file .env ai-chatbot
-```
-
-Example `.env`:
-
-```
-HF_TOKEN=your_huggingface_token_here
 ```
 
 ---
@@ -203,20 +214,22 @@ Automatically re-indexes your new documents using FAISS.
 
 ---
 
-## 🔁 Roadmap / Ideas
+## 🧪 CI/CD with GitHub Actions
 
-- [ ] PDF upload UI in Streamlit
-- [ ] OCR support (images/scanned PDFs)
-- [ ] Speech-to-text input
-- [ ] SQLite memory mode (long-term conversation history)
-- [ ] Custom embedding model with ONNX (fully offline)
+Every push or pull request triggers automated checks:
+
+* ✅ Python 3.11 setup
+* ✅ Dependency installation
+* ✅ Code linting via `flake8`
+
+Defined in: `.github/workflows/python.yml`
 
 ---
 
 ## 🧑‍💻 Author
 
-**Aditya Bhatt**  
-Cybersecurity Specialist | VAPT Expert | OSS Contributor  
+**Aditya Bhatt**
+Cybersecurity Specialist | VAPT Expert | OSS Contributor
 [GitHub](https://github.com/AdityaBhatt3010) | [Medium](https://medium.com/@adityabhatt3010)
 
 ---
