@@ -1,13 +1,14 @@
-# Force correct language detection for ignored/low-content files
+# Force language override
 *.yml linguist-language=YAML
 *.yaml linguist-language=YAML
 *.ipynb linguist-language=Jupyter Notebook
 *.ps1 linguist-language=PowerShell
 
-# Mark screenshots/docs as non-source content
+# Exclude non-code assets from stats
 Screenshots/* linguist-documentation
-README.md linguist-documentation
 *.png linguist-documentation
+README.md linguist-documentation
 
-# Exclude compiled Python
+# Ignore generated Python files
 __pycache__/* linguist-generated
+vectorstore/db_faiss/* linguist-generated
