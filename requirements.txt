@@ -1,20 +1,25 @@
-# LangChain core and community components
+# Web UI framework
+streamlit>=1.33.0
+
+# LangChain core and components
 langchain>=0.2.0
 langchain-community>=0.2.0
 langchain-core>=0.2.0
+langchainhub>=0.1.15
 
-# Hugging Face sentence-transformers
+# Hugging Face models (used by LangChain Embeddings)
 sentence-transformers>=2.2.2
 
-# FAISS for vector storage
+# FAISS vector store for retrieval
 faiss-cpu>=1.7.4
 
-# PDF handling
+# PDF loading
 pypdf>=3.9.1
 
 # Environment variable handling
 python-dotenv>=1.0.1
 
-# Fancy terminal output
+# Terminal styling
 pyfiglet>=1.0.2
 termcolor>=2.3.0
+rich>=13.7.0

@@ -173,16 +173,44 @@ streamlit run streamlit_app.py
 ### Prerequisites
 
 * Docker installed & running
+* `.env` file containing `HF_TOKEN` (Hugging Face token)
 
-### Build & Run
+---
 
-```bash
-# Build the image
-docker build -t ai-chatbot .
+### 🛠️ Docker Build & Run
 
-# Run the container (ensure .env has HF_TOKEN)
-docker run --env-file .env ai-chatbot
-```
+To build and run the chatbot using Docker, follow these steps:
+
+1. **Build the Docker image**:
+
+   ```bash
+   docker build -t ai-chatbot .
+   ```
+
+2. **Run the container** (with volume mount and token):
+
+   ```bash
+   docker run -p 8501:8501 --env-file .env -v ${PWD}/data:/app/data ai-chatbot
+   ```
+
+   This will:
+
+   * Map the container's port `8501` to local `8501`
+   * Use your local `.env` for `HF_TOKEN`
+   * Mount the `data/` folder into the container for access to PDFs
+
+> Access the chatbot at [http://localhost:8501](http://localhost:8501)
+
+### 📸 Screenshot: 
+
+#### 🐳 Building the Image
+
+![Docker Build and Run](./Screenshots/Docker_Build_and_Run.png)
+
+---
+
+Let me know if you want the actual screenshot file names changed or if you’d like a quick CLI script to generate and store those screenshots automatically during your next run.
+
 
 ---
 

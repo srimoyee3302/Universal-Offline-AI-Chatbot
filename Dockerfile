@@ -1,30 +1,31 @@
 # Base image with Python
 FROM python:3.11-slim
 
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
 # Set working directory
 WORKDIR /app
 
-# Install OS dependencies
-RUN apt-get update && apt-get install -y \
+# Install OS-level dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirement files
-COPY requirements.txt .
-
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-# Copy application code
+# Copy app code
 COPY . .
 
-# Expose Streamlit default port
+# Expose Streamlit's default port
 EXPOSE 8501
 
-# Set environment variables (optional)
-ENV PYTHONUNBUFFERED=1
-
-# Run the Streamlit app
+# Default command to run the app
 CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.enableCORS=false"]
