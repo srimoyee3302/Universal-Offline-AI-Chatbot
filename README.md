@@ -205,7 +205,7 @@ To build and run the chatbot using Docker, follow these steps:
 
 #### 🐳 Building the Image
 
-![Docker Build and Run](./Screenshots/Docker_Build_and_Run.png)
+![Docker Build and Run](./Screenshots/Docker_Build_Run.png)
 
 ---
 
