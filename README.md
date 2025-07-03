@@ -212,11 +212,6 @@ To build and run the chatbot using Docker, follow these steps:
 
 ---
 
-Let me know if you want the actual screenshot file names changed or if you’d like a quick CLI script to generate and store those screenshots automatically during your next run.
-
-
----
-
 ## 🔄 Using Your Own PDFs
 
 ```bash
