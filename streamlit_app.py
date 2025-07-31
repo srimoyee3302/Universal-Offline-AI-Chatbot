@@ -98,14 +98,15 @@ if user_input:
                 for doc, score in docs_with_scores:
                     if score >= SIMILARITY_THRESHOLD and isinstance(doc, Document):
                         filtered_docs.append(doc)
-                        st.write(f"Score: {score:.2f} | Source: {doc.metadata.get('source', 'Unknown')} | Preview: {doc.page_content[:100]}")
+                        source = doc.metadata.get("source", "Unknown") if hasattr(doc, "metadata") else "Unknown"
+                        st.write(f"Score: {score:.2f} | Source: {source} | Preview: {doc.page_content[:100]}")
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
                     context = "\n\n".join([
-                        getattr(doc, 'page_content', str(doc)) for doc in filtered_docs
-                        if isinstance(doc, Document)
+                        getattr(doc, 'page_content', str(doc))
+                        for doc in filtered_docs if isinstance(doc, Document)
                     ])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
@@ -116,8 +117,10 @@ if user_input:
 
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
                     for doc in filtered_docs:
-                        source = doc.metadata.get("source", "Unknown Document")
-                        st.markdown(f"- {source}")
+                        source_name = "Unknown Document"
+                        if isinstance(doc, Document) and hasattr(doc, "metadata"):
+                            source_name = doc.metadata.get("source", "Unknown Document")
+                        st.markdown(f"- {source_name}")
 
                     st.session_state.chat_history.append(("bot", answer))
 
