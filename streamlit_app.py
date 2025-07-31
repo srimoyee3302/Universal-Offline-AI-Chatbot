@@ -22,7 +22,7 @@ st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files
 
 st.divider()
 
-# PDF Upload Section
+# 📅 PDF Upload Section
 uploaded_files = st.file_uploader("Upload your PDFs here", type=["pdf"], accept_multiple_files=True)
 
 # Auto-refresh Knowledge Base on Upload
@@ -41,7 +41,7 @@ if uploaded_files:
         build_vector_db(chunks, embedding_model, DB_FAISS_PATH)
     st.success("Knowledge Base Updated! You can now ask questions.")
 
-# Show Uploaded PDFs List with Remove Option
+# 📂 Show Uploaded PDFs List with Remove Option
 uploaded_files_list = os.listdir(DATA_PATH) if os.path.exists(DATA_PATH) else []
 if uploaded_files_list:
     st.markdown("### 📂 Uploaded Documents:")
@@ -90,7 +90,7 @@ if user_input:
         with st.spinner("Thinking... \U0001F9E0"):
             try:
                 retriever = qa_chain.retriever
-                docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=3)
+                docs_with_scores = retriever.vectorstore.similarity_search_with_score(user_input, k=3)
 
                 SIMILARITY_THRESHOLD = 0.6
                 filtered_docs = []
@@ -102,14 +102,13 @@ if user_input:
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
+                    context = "
+
+".join([doc.page_content for doc in filtered_docs])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
                     answer_response = llm_model(prompt)
-                    if isinstance(answer_response, str):
-                        answer = answer_response.strip()
-                    else:
-                        answer = answer_response.get('response', '').strip()
+                    answer = answer_response.strip() if isinstance(answer_response, str) else answer_response['result']
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
