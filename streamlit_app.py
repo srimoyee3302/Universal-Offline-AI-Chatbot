@@ -102,7 +102,8 @@ if user_input:
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
+                    context = "\n\n".join([getattr(doc, 'page_content', str(doc)) for doc in filtered_docs])
+
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
                     answer_response = llm_model(prompt)
