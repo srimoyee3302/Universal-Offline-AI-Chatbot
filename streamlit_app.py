@@ -1,6 +1,6 @@
-# streamlit_app.py
-
 import streamlit as st
+import os
+
 from src.config import DATA_PATH, DB_FAISS_PATH
 from src.utils import stylish_heading
 from src.loader import load_pdf_files
@@ -10,7 +10,7 @@ from src.vectorstore import build_vector_db, load_vector_db
 from src.model_loader import load_llm
 from src.prompts import CUSTOM_PROMPT_TEMPLATE, set_custom_prompt
 from src.qa_chain import setup_qa_chain
-import os
+from langchain.schema import Document  # To ensure correct type checks
 
 # Page config
 st.set_page_config(page_title="Universal AI Chatbot", page_icon="🧠", layout="centered")
@@ -19,7 +19,6 @@ st.set_page_config(page_title="Universal AI Chatbot", page_icon="🧠", layout="
 stylish_heading()
 st.markdown("<h2 style='text-align: center;'>🧠 Ask Me Anything From Your PDFs</h2>", unsafe_allow_html=True)
 st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files below to update knowledge base automatically.")
-
 st.divider()
 
 # PDF Upload Section
@@ -96,13 +95,13 @@ if user_input:
                 filtered_docs = []
 
                 for doc, score in docs_with_scores:
-                    if score >= SIMILARITY_THRESHOLD:
+                    if score >= SIMILARITY_THRESHOLD and isinstance(doc, Document):
                         filtered_docs.append(doc)
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([getattr(doc, 'page_content', str(doc)) for doc in filtered_docs])
+                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
                     answer_response = llm_model(prompt)
@@ -115,7 +114,8 @@ if user_input:
 
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
                     for doc in filtered_docs:
-                        source_name = getattr(doc, 'metadata', {}).get("source", "Unknown Document")
+                        metadata = getattr(doc, 'metadata', {})
+                        source_name = metadata.get("source", "Unknown Document")
                         st.markdown(f"- {source_name}")
 
                     st.session_state.chat_history.append(("bot", answer))
