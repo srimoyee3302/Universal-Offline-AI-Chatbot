@@ -18,25 +18,43 @@ st.set_page_config(page_title="Universal AI Chatbot", page_icon="🧠", layout="
 # Header
 stylish_heading()
 st.markdown("<h2 style='text-align: center;'>🧠 Ask Me Anything From Your PDFs</h2>", unsafe_allow_html=True)
-st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Add `.pdf` files in the `/data` folder to change knowledge base.")
+st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files below to update knowledge base automatically.")
 
 st.divider()
 
-# Load pipeline once
+# 📥 PDF Upload Section
+uploaded_files = st.file_uploader("Upload your PDFs here", type=["pdf"], accept_multiple_files=True)
+
+# Auto-refresh Knowledge Base on Upload
+if uploaded_files:
+    os.makedirs(DATA_PATH, exist_ok=True)
+    for uploaded_file in uploaded_files:
+        file_path = os.path.join(DATA_PATH, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+    st.success("Files uploaded successfully! Updating Knowledge Base...")
+
+    with st.spinner("Processing uploaded documents..."):
+        documents = load_pdf_files(DATA_PATH)
+        chunks = create_chunks(documents)
+        embedding_model = get_embedding_model()
+        build_vector_db(chunks, embedding_model, DB_FAISS_PATH)
+    st.success("Knowledge Base Updated! You can now ask questions.")
+
+st.divider()
+
+# Load pipeline once (cached but will reload if FAISS DB is rebuilt)
 @st.cache_resource(show_spinner="Warming up the brain... 🧠⚙️")
 def load_pipeline():
-    documents = load_pdf_files(DATA_PATH)
-    chunks = create_chunks(documents)
     embedding_model = get_embedding_model()
-
-    if not os.path.exists(DB_FAISS_PATH):
-        build_vector_db(chunks, embedding_model, DB_FAISS_PATH)
-
     db = load_vector_db(DB_FAISS_PATH, embedding_model)
     llm = load_llm()
     qa_chain = setup_qa_chain(llm, db, set_custom_prompt(CUSTOM_PROMPT_TEMPLATE))
     return qa_chain
 
+# Clear cache and reload pipeline if new PDFs uploaded
+if uploaded_files:
+    st.cache_resource.clear()
 qa_chain = load_pipeline()
 
 # Start chat session state
