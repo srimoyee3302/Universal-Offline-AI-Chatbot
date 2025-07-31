@@ -71,6 +71,7 @@ if uploaded_files:
     st.cache_resource.clear()
 
 qa_chain = load_pipeline()
+llm_model = load_llm()
 
 # Start chat session state
 if "chat_history" not in st.session_state:
@@ -104,8 +105,7 @@ if user_input:
                     context = "\n\n".join([doc.page_content for doc in filtered_docs])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
-                    llm = qa_chain.llm
-                    answer = llm(prompt)
+                    answer = llm_model(prompt)
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
