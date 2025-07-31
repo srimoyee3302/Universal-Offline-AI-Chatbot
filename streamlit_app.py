@@ -97,12 +97,11 @@ if user_input:
                 for doc, score in docs_with_scores:
                     try:
                         if score >= SIMILARITY_THRESHOLD:
-                            # Ensure doc is a Document and has page_content
                             page_content = getattr(doc, "page_content", None)
                             if isinstance(doc, Document) and page_content:
                                 filtered_docs.append(doc)
                     except Exception as inner_err:
-                        st.warning(f"Skipping doc due to error: {inner_err}")
+                        continue
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
@@ -111,11 +110,19 @@ if user_input:
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
                     answer_response = llm_model.invoke(prompt)
-                    answer = answer_response.strip() if isinstance(answer_response, str) else str(answer_response).strip()
+
+                    # Clean extraction of just the answer
+                    if isinstance(answer_response, str):
+                        answer = answer_response.strip()
+                    elif isinstance(answer_response, dict) and 'response' in answer_response:
+                        answer = answer_response['response'].strip()
+                    elif hasattr(answer_response, 'content'):
+                        answer = answer_response.content.strip()
+                    else:
+                        answer = str(answer_response).strip().split('content="')[-1].split('"')[0]
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
-                    # Remove duplicates from source list
                     sources = sorted(set(doc.metadata.get("source", "Unknown Document") for doc in filtered_docs if hasattr(doc, "metadata")))
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
                     for source in sources:
