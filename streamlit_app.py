@@ -48,10 +48,15 @@ if uploaded_files_list:
     for file_name in uploaded_files_list:
         col1, col2 = st.columns([0.8, 0.2])
         with col1:
-            st.markdown(f"{chr(0x1F916)} {answer}")
+            st.markdown(f"- {file_name}")
+        with col2:
+            if st.button("Remove", key=f"remove_{file_name}"):
+                os.remove(os.path.join(DATA_PATH, file_name))
+                st.success(f"Removed {file_name}. Please upload new files or refresh the app.")
+                st.experimental_rerun()
 
                 if source_docs:
-                    st.markdown("\ud83d\udd17 **Source Document(s):**")
+                    st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
                     for doc in source_docs:
                         source_name = doc.metadata.get("source", "Unknown Document")
                         st.markdown(f"- {source_name}")
@@ -67,4 +72,4 @@ if st.session_state.chat_history:
     if show_history:
         st.markdown("🕓 **Conversation History**", help="Scroll back through your past questions and answers.")
         for sender, msg in st.session_state.chat_history:
-            icon = chr(0x1F9E0) if sender == "user" else chr(0x1F916))
+            icon = chr(0x1F9E0) if sender == "user" else chr(0x1F916)
