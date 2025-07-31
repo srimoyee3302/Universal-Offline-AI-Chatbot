@@ -93,7 +93,11 @@ if user_input:
                 docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=3)
 
                 SIMILARITY_THRESHOLD = 0.6
-                filtered_docs = [doc for doc in docs_with_scores if doc.score >= SIMILARITY_THRESHOLD]
+                filtered_docs = []
+
+                for doc, score in docs_with_scores:
+                    if score >= SIMILARITY_THRESHOLD:
+                        filtered_docs.append(doc)
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
