@@ -54,6 +54,45 @@ if uploaded_files_list:
                 os.remove(os.path.join(DATA_PATH, file_name))
                 st.success(f"Removed {file_name}. Please upload new files or refresh the app.")
                 st.experimental_rerun()
+else:
+    st.info("No documents uploaded yet.")
+
+# Load pipeline once (cached but will reload if FAISS DB is rebuilt)
+@st.cache_resource(show_spinner="Warming up the brain... 🧠⚙️")
+def load_pipeline():
+    embedding_model = get_embedding_model()
+    db = load_vector_db(DB_FAISS_PATH, embedding_model)
+    llm = load_llm()
+    qa_chain = setup_qa_chain(llm, db, set_custom_prompt(CUSTOM_PROMPT_TEMPLATE))
+    return qa_chain
+
+# Clear cache and reload pipeline if new PDFs uploaded
+if uploaded_files:
+    st.cache_resource.clear()
+
+qa_chain = load_pipeline()
+
+# Start chat session state
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# Chat input/output loop
+st.chat_message("assistant").markdown(f"{chr(0x1F44B)} Hello! I'm your AI assistant. Ask me anything about your uploaded documents.")
+
+user_input = st.chat_input("Type your question here...")
+
+if user_input:
+    st.session_state.chat_history.append(("user", user_input))
+    st.chat_message("user").markdown(user_input)
+
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking... 🧠"):
+            try:
+                response = qa_chain.invoke({"query": user_input})
+                answer = response['result']
+                source_docs = response.get('source_documents', [])
+
+                st.markdown(f"{chr(0x1F916)} {answer}")
 
                 if source_docs:
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
@@ -62,6 +101,7 @@ if uploaded_files_list:
                         st.markdown(f"- {source_name}")
 
                 st.session_state.chat_history.append(("bot", answer))
+
             except Exception as e:
                 st.error(f"{chr(0x274C)} Error: {e}")
 
@@ -70,6 +110,7 @@ if st.session_state.chat_history:
     st.divider()
     show_history = st.toggle("Show Conversation History", value=False)
     if show_history:
-        st.markdown("🕓 **Conversation History**", help="Scroll back through your past questions and answers.")
+        st.markdown(f"{chr(0x1F553)} **Conversation History**", help="Scroll back through your past questions and answers.")
         for sender, msg in st.session_state.chat_history:
             icon = chr(0x1F9E0) if sender == "user" else chr(0x1F916)
+            st.markdown(f"**{icon} {sender.capitalize()}**: {msg}")
