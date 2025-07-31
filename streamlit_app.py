@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from langchain.schema import Document
 
 from src.config import DATA_PATH, DB_FAISS_PATH
 from src.utils import stylish_heading
@@ -10,14 +11,13 @@ from src.vectorstore import build_vector_db, load_vector_db
 from src.model_loader import load_llm
 from src.prompts import CUSTOM_PROMPT_TEMPLATE, set_custom_prompt
 from src.qa_chain import setup_qa_chain
-from langchain.schema import Document
 
 # Page config
 st.set_page_config(page_title="Universal AI Chatbot", page_icon="🧠", layout="centered")
 
 # Header
 stylish_heading()
-st.markdown("<h2 style='text-align: center;'>🧠 Ask Me Anything From Your PDFs</h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center;'>🧠 PDF Chatbot </h2>", unsafe_allow_html=True)
 st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files below to update knowledge base automatically.")
 st.divider()
 
@@ -92,54 +92,32 @@ if user_input:
                 docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=5)
 
                 SIMILARITY_THRESHOLD = 0.3
-                filtered_docs = []
-
-                st.write("[DEBUG] Retrieved Docs and Scores:")
-                for doc, score in docs_with_scores:
-                    if score >= SIMILARITY_THRESHOLD:
-                        filtered_docs.append(doc)
-                        preview = getattr(doc, "page_content", str(doc))[:100]
-                        source = getattr(doc, "metadata", {}).get("source", "Unknown")
-                        st.write(f"Score: {score:.2f} | Source: {source} | Preview: {preview}")
+                filtered_docs = [
+                    doc for doc, score in docs_with_scores
+                    if score >= SIMILARITY_THRESHOLD and isinstance(doc, Document)
+                ]
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context_parts = []
-                    sources = []
-
-                    for doc in filtered_docs:
-                        try:
-                            page_text = getattr(doc, "page_content", str(doc))
-                            context_parts.append(page_text)
-
-                            metadata = getattr(doc, "metadata", {})
-                            source_name = metadata.get("source", "Unknown Document")
-                            sources.append(source_name)
-                        except Exception as e:
-                            st.write(f"[WARN] Failed to parse a doc: {e}")
-                            context_parts.append(str(doc))
-                            sources.append("Unknown Document")
-
-                    context = "\n\n".join(context_parts)
+                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
-                    # FINAL FIX HERE: Use .invoke() not __call__()
-                    answer_response = llm_model.invoke(prompt)
-                    answer = answer_response.strip() if isinstance(answer_response, str) else str(answer_response).strip()
+                    answer_response = llm_model(prompt)
+                    answer = answer_response.strip() if isinstance(answer_response, str) else answer_response.get('response', '').strip()
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
+                    # Remove duplicates from source list
+                    sources = sorted(set(doc.metadata.get("source", "Unknown Document") for doc in filtered_docs))
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
-                    for src in sources:
-                        st.markdown(f"- {src}")
+                    for source in sources:
+                        st.markdown(f"- {source}")
 
                     st.session_state.chat_history.append(("bot", answer))
 
             except Exception as e:
-                import traceback
                 st.error(f"{chr(0x274C)} Error: {e}")
-                st.code(traceback.format_exc())
 
 # Toggle to Show/Hide Conversation History
 if st.session_state.chat_history:
