@@ -22,7 +22,7 @@ st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files
 
 st.divider()
 
-# 📅 PDF Upload Section
+# PDF Upload Section
 uploaded_files = st.file_uploader("Upload your PDFs here", type=["pdf"], accept_multiple_files=True)
 
 # Auto-refresh Knowledge Base on Upload
@@ -41,7 +41,7 @@ if uploaded_files:
         build_vector_db(chunks, embedding_model, DB_FAISS_PATH)
     st.success("Knowledge Base Updated! You can now ask questions.")
 
-# 📂 Show Uploaded PDFs List with Remove Option
+# Show Uploaded PDFs List with Remove Option
 uploaded_files_list = os.listdir(DATA_PATH) if os.path.exists(DATA_PATH) else []
 if uploaded_files_list:
     st.markdown("### 📂 Uploaded Documents:")
@@ -105,7 +105,11 @@ if user_input:
                     context = "\n\n".join([doc.page_content for doc in filtered_docs])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
-                    answer = llm_model(prompt)
+                    answer_response = llm_model(prompt)
+                    if isinstance(answer_response, str):
+                        answer = answer_response.strip()
+                    else:
+                        answer = answer_response.get('response', '').strip()
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
