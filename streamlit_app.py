@@ -90,20 +90,15 @@ if user_input:
         with st.spinner("Thinking... \U0001F9E0"):
             try:
                 retriever = qa_chain.retriever
-                docs_with_scores = retriever.vectorstore.similarity_search_with_score(user_input, k=3)
+                docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=3)
 
                 SIMILARITY_THRESHOLD = 0.6
-                filtered_docs = []
-
-                for doc, score in docs_with_scores:
-                    if score >= SIMILARITY_THRESHOLD:
-                        filtered_docs.append(doc)
+                filtered_docs = [doc for doc in docs_with_scores if doc.score >= SIMILARITY_THRESHOLD]
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([getattr(doc, 'page_content', str(doc)) for doc in filtered_docs])
-
+                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
                     answer_response = llm_model(prompt)
