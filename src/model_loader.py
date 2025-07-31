@@ -2,4 +2,4 @@
 from langchain_community.chat_models import ChatOllama
 
 def load_llm():
-    return ChatOllama(model="mistral:instruct", temperature=0.5)
+    return ChatOllama(model="mistral", temperature=0.5)
