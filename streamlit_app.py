@@ -10,7 +10,7 @@ from src.vectorstore import build_vector_db, load_vector_db
 from src.model_loader import load_llm
 from src.prompts import CUSTOM_PROMPT_TEMPLATE, set_custom_prompt
 from src.qa_chain import setup_qa_chain
-from langchain.schema import Document  # To ensure correct type checks
+from langchain.schema import Document
 
 # Page config
 st.set_page_config(page_title="Universal AI Chatbot", page_icon="🧠", layout="centered")
@@ -89,34 +89,35 @@ if user_input:
         with st.spinner("Thinking... 🧠"):
             try:
                 retriever = qa_chain.retriever
-                docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=3)
+                docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=5)
 
-                SIMILARITY_THRESHOLD = 0.6
+                SIMILARITY_THRESHOLD = 0.3
                 filtered_docs = []
 
+                st.write("[DEBUG] Retrieved Docs and Scores:")
                 for doc, score in docs_with_scores:
                     if score >= SIMILARITY_THRESHOLD and isinstance(doc, Document):
                         filtered_docs.append(doc)
+                        st.write(f"Score: {score:.2f} | Source: {doc.metadata.get('source', 'Unknown')} | Preview: {doc.page_content[:100]}")
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
+                    context = "\n\n".join([
+                        getattr(doc, 'page_content', str(doc)) for doc in filtered_docs
+                        if isinstance(doc, Document)
+                    ])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
                     answer_response = llm_model(prompt)
-                    if isinstance(answer_response, str):
-                        answer = answer_response.strip()
-                    else:
-                        answer = answer_response.get('response', '').strip()
+                    answer = answer_response.strip() if isinstance(answer_response, str) else answer_response.get('response', '').strip()
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
                     for doc in filtered_docs:
-                        metadata = getattr(doc, 'metadata', {})
-                        source_name = metadata.get("source", "Unknown Document")
-                        st.markdown(f"- {source_name}")
+                        source = doc.metadata.get("source", "Unknown Document")
+                        st.markdown(f"- {source}")
 
                     st.session_state.chat_history.append(("bot", answer))
 
