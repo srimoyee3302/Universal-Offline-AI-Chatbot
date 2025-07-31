@@ -96,36 +96,50 @@ if user_input:
 
                 st.write("[DEBUG] Retrieved Docs and Scores:")
                 for doc, score in docs_with_scores:
-                    if score >= SIMILARITY_THRESHOLD and isinstance(doc, Document):
+                    if score >= SIMILARITY_THRESHOLD:
                         filtered_docs.append(doc)
-                        source = doc.metadata.get("source", "Unknown") if hasattr(doc, "metadata") else "Unknown"
-                        st.write(f"Score: {score:.2f} | Source: {source} | Preview: {doc.page_content[:100]}")
+                        preview = getattr(doc, "page_content", str(doc))[:100]
+                        source = getattr(doc, "metadata", {}).get("source", "Unknown")
+                        st.write(f"Score: {score:.2f} | Source: {source} | Preview: {preview}")
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([
-                        getattr(doc, 'page_content', str(doc))
-                        for doc in filtered_docs if isinstance(doc, Document)
-                    ])
+                    context_parts = []
+                    sources = []
+
+                    for doc in filtered_docs:
+                        try:
+                            page_text = getattr(doc, "page_content", str(doc))
+                            context_parts.append(page_text)
+
+                            metadata = getattr(doc, "metadata", {})
+                            source_name = metadata.get("source", "Unknown Document")
+                            sources.append(source_name)
+                        except Exception as e:
+                            st.write(f"[WARN] Failed to parse a doc: {e}")
+                            context_parts.append(str(doc))
+                            sources.append("Unknown Document")
+
+                    context = "\n\n".join(context_parts)
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
-                    answer_response = llm_model(prompt)
-                    answer = answer_response.strip() if isinstance(answer_response, str) else answer_response.get('response', '').strip()
+                    # FINAL FIX HERE: Use .invoke() not __call__()
+                    answer_response = llm_model.invoke(prompt)
+                    answer = answer_response.strip() if isinstance(answer_response, str) else str(answer_response).strip()
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
-                    for doc in filtered_docs:
-                        source_name = "Unknown Document"
-                        if isinstance(doc, Document) and hasattr(doc, "metadata"):
-                            source_name = doc.metadata.get("source", "Unknown Document")
-                        st.markdown(f"- {source_name}")
+                    for src in sources:
+                        st.markdown(f"- {src}")
 
                     st.session_state.chat_history.append(("bot", answer))
 
             except Exception as e:
+                import traceback
                 st.error(f"{chr(0x274C)} Error: {e}")
+                st.code(traceback.format_exc())
 
 # Toggle to Show/Hide Conversation History
 if st.session_state.chat_history:
