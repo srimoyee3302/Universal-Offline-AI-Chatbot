@@ -41,12 +41,19 @@ if uploaded_files:
         build_vector_db(chunks, embedding_model, DB_FAISS_PATH)
     st.success("Knowledge Base Updated! You can now ask questions.")
 
-# 📂 Show Uploaded PDFs List
+# 📂 Show Uploaded PDFs List with Remove Option
 uploaded_files_list = os.listdir(DATA_PATH) if os.path.exists(DATA_PATH) else []
 if uploaded_files_list:
     st.markdown("### 📂 Uploaded Documents:")
     for file_name in uploaded_files_list:
-        st.markdown(f"- {file_name}")
+        col1, col2 = st.columns([0.8, 0.2])
+        with col1:
+            st.markdown(f"- {file_name}")
+        with col2:
+            if st.button("Remove", key=f"remove_{file_name}"):
+                os.remove(os.path.join(DATA_PATH, file_name))
+                st.success(f"Removed {file_name}. Please upload new files or refresh the app.")
+                st.experimental_rerun()
 else:
     st.info("No documents uploaded yet.")
 
@@ -99,10 +106,12 @@ if user_input:
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
-# Optionally: show previous messages
+# Toggle to Show/Hide Conversation History
 if st.session_state.chat_history:
     st.divider()
-    st.markdown("🕓 **Conversation History**", help="Scroll back through your past questions and answers.")
-    for sender, msg in st.session_state.chat_history:
-        icon = "🧠" if sender == "user" else "🤖"
-        st.markdown(f"**{icon} {sender.capitalize()}**: {msg}")
+    show_history = st.toggle("Show Conversation History", value=False)
+    if show_history:
+        st.markdown("🕓 **Conversation History**", help="Scroll back through your past questions and answers.")
+        for sender, msg in st.session_state.chat_history:
+            icon = "🧠" if sender == "user" else "🤖"
+            st.markdown(f"**{icon} {sender.capitalize()}**: {msg}")
