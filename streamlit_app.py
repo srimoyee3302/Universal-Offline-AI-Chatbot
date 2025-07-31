@@ -22,7 +22,7 @@ st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files
 
 st.divider()
 
-# 📥 PDF Upload Section
+# 📅 PDF Upload Section
 uploaded_files = st.file_uploader("Upload your PDFs here", type=["pdf"], accept_multiple_files=True)
 
 # Auto-refresh Knowledge Base on Upload
@@ -40,6 +40,15 @@ if uploaded_files:
         embedding_model = get_embedding_model()
         build_vector_db(chunks, embedding_model, DB_FAISS_PATH)
     st.success("Knowledge Base Updated! You can now ask questions.")
+
+# 📂 Show Uploaded PDFs List
+uploaded_files_list = os.listdir(DATA_PATH) if os.path.exists(DATA_PATH) else []
+if uploaded_files_list:
+    st.markdown("### 📂 Uploaded Documents:")
+    for file_name in uploaded_files_list:
+        st.markdown(f"- {file_name}")
+else:
+    st.info("No documents uploaded yet.")
 
 st.divider()
 
@@ -75,8 +84,18 @@ if user_input:
         with st.spinner("Thinking... 🧠"):
             try:
                 response = qa_chain.invoke({"query": user_input})
-                st.markdown(f"🤖 {response['result']}")
-                st.session_state.chat_history.append(("bot", response['result']))
+                answer = response['result']
+                source_docs = response.get('source_documents', [])
+
+                st.markdown(f"🤖 {answer}")
+
+                if source_docs:
+                    st.markdown("\ud83d\udd17 **Source Document(s):**")
+                    for doc in source_docs:
+                        source_name = doc.metadata.get("source", "Unknown Document")
+                        st.markdown(f"- {source_name}")
+
+                st.session_state.chat_history.append(("bot", answer))
             except Exception as e:
                 st.error(f"❌ Error: {e}")
 
