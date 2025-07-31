@@ -17,7 +17,7 @@ st.set_page_config(page_title="Universal AI Chatbot", page_icon="🧠", layout="
 
 # Header
 stylish_heading()
-st.markdown("<h2 style='text-align: center;'>🧠 PDF Chatbot </h2>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align: center;'>🧠 Ask Me Anything From Your PDFs</h2>", unsafe_allow_html=True)
 st.markdown("✅ Powered by **Offline Mistral** + **FAISS**. Upload `.pdf` files below to update knowledge base automatically.")
 st.divider()
 
@@ -92,24 +92,31 @@ if user_input:
                 docs_with_scores = retriever.vectorstore.similarity_search_with_relevance_scores(user_input, k=5)
 
                 SIMILARITY_THRESHOLD = 0.3
-                filtered_docs = [
-                    doc for doc, score in docs_with_scores
-                    if score >= SIMILARITY_THRESHOLD and isinstance(doc, Document)
-                ]
+                filtered_docs = []
+
+                for doc, score in docs_with_scores:
+                    try:
+                        if score >= SIMILARITY_THRESHOLD:
+                            # Ensure doc is a Document and has page_content
+                            page_content = getattr(doc, "page_content", None)
+                            if isinstance(doc, Document) and page_content:
+                                filtered_docs.append(doc)
+                    except Exception as inner_err:
+                        st.warning(f"Skipping doc due to error: {inner_err}")
 
                 if not filtered_docs:
                     st.warning("I couldn't find relevant information in the uploaded documents for your query.")
                 else:
-                    context = "\n\n".join([doc.page_content for doc in filtered_docs])
+                    context = "\n\n".join([doc.page_content for doc in filtered_docs if hasattr(doc, "page_content")])
                     prompt = f"Use the following context to answer:\n{context}\n\nQ: {user_input}\nA:"
 
-                    answer_response = llm_model(prompt)
-                    answer = answer_response.strip() if isinstance(answer_response, str) else answer_response.get('response', '').strip()
+                    answer_response = llm_model.invoke(prompt)
+                    answer = answer_response.strip() if isinstance(answer_response, str) else str(answer_response).strip()
 
                     st.markdown(f"{chr(0x1F916)} {answer}")
 
                     # Remove duplicates from source list
-                    sources = sorted(set(doc.metadata.get("source", "Unknown Document") for doc in filtered_docs))
+                    sources = sorted(set(doc.metadata.get("source", "Unknown Document") for doc in filtered_docs if hasattr(doc, "metadata")))
                     st.markdown(f"{chr(0x1F517)} **Source Document(s):**")
                     for source in sources:
                         st.markdown(f"- {source}")
@@ -117,7 +124,9 @@ if user_input:
                     st.session_state.chat_history.append(("bot", answer))
 
             except Exception as e:
+                import traceback
                 st.error(f"{chr(0x274C)} Error: {e}")
+                st.code(traceback.format_exc())
 
 # Toggle to Show/Hide Conversation History
 if st.session_state.chat_history:
